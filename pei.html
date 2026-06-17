@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PEI — Projet Éducatif Individualisé</title>
+<style>
+  :root{
+    --bleu:#2c5f7c;
+    --bleu-clair:#e8f1f6;
+    --gris:#f5f6f7;
+    --bord:#cfd6db;
+    --txt:#1f2a30;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Segoe UI",Calibri,Arial,sans-serif;
+    color:var(--txt);
+    background:#dde3e7;
+    line-height:1.45;
+    font-size:14px;
+  }
+  .feuille{
+    max-width:900px;
+    margin:0 auto;
+    background:#fff;
+    padding:28px 34px 60px;
+    box-shadow:0 0 14px rgba(0,0,0,.15);
+  }
+
+  /* ---- Barre d'outils (cachée à l'impression) ---- */
+  .barre{
+    position:sticky;top:0;z-index:50;
+    background:var(--bleu);
+    color:#fff;
+    padding:10px 16px;
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    box-shadow:0 2px 6px rgba(0,0,0,.2);
+  }
+  .barre h1{font-size:16px;margin:0;margin-right:auto;font-weight:600;}
+  .barre button{
+    font:inherit;font-size:13px;
+    border:none;border-radius:6px;
+    padding:8px 14px;cursor:pointer;
+    background:#fff;color:var(--bleu);font-weight:600;
+  }
+  .barre button:hover{background:var(--bleu-clair);}
+  .barre button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6);}
+  .barre button.sec:hover{background:rgba(255,255,255,.15);}
+  .etat-save{font-size:12px;color:#cfe3ef;min-width:120px;text-align:right;}
+
+  h2.section{
+    background:var(--bleu);
+    color:#fff;
+    font-size:15px;
+    margin:26px 0 0;
+    padding:7px 12px;
+    border-radius:5px 5px 0 0;
+  }
+  .bloc{
+    border:1px solid var(--bord);
+    border-top:none;
+    border-radius:0 0 5px 5px;
+    padding:12px 14px;
+  }
+
+  .titre-doc{text-align:center;margin:4px 0 18px;}
+  .titre-doc h1{margin:0;color:var(--bleu);font-size:26px;letter-spacing:.5px;}
+  .titre-doc p{margin:2px 0 0;color:#5a6b75;font-size:13px;}
+
+  label.champ{display:block;margin:8px 0;}
+  label.champ > span{display:block;font-weight:600;color:var(--bleu);margin-bottom:3px;font-size:13px;}
+
+  input[type=text],input[type=date],textarea{
+    width:100%;
+    font:inherit;
+    color:var(--txt);
+    border:1px solid var(--bord);
+    border-radius:5px;
+    padding:6px 8px;
+    background:#fff;
+  }
+  input:focus,textarea:focus{outline:2px solid var(--bleu-clair);border-color:var(--bleu);}
+  textarea{resize:vertical;min-height:48px;}
+
+  .grille2{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;}
+  .grille3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 16px;}
+  @media(max-width:640px){.grille2,.grille3{grid-template-columns:1fr;}}
+
+  /* lignes "intitulé + zone de texte" */
+  .ligne{display:grid;grid-template-columns:230px 1fr;gap:10px;align-items:start;padding:5px 0;border-bottom:1px dashed #e3e8eb;}
+  .ligne:last-child{border-bottom:none;}
+  .ligne > .lib{font-weight:600;color:var(--bleu);padding-top:6px;font-size:13px;}
+  .ligne textarea{min-height:40px;}
+  @media(max-width:640px){.ligne{grid-template-columns:1fr;}.ligne>.lib{padding-top:0;}}
+
+  /* tableau charge de travail */
+  table{width:100%;border-collapse:collapse;margin-top:6px;}
+  th,td{border:1px solid var(--bord);padding:4px 6px;text-align:left;vertical-align:top;}
+  th{background:var(--bleu-clair);color:var(--bleu);font-size:13px;}
+  td input{border:none;padding:4px 2px;}
+  td input:focus{outline:1px solid var(--bleu);}
+  caption{caption-side:top;text-align:left;font-weight:600;color:var(--bleu);padding:6px 0;}
+
+  .note{font-size:12px;color:#6b7a83;margin:6px 0 0;}
+
+  /* ---------- Impression / PDF ---------- */
+  @media print{
+    body{background:#fff;font-size:12px;}
+    .barre{display:none !important;}
+    .feuille{box-shadow:none;max-width:none;margin:0;padding:0 6mm;}
+    h2.section{-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-after:avoid;}
+    .bloc{page-break-inside:avoid;}
+    .ligne{page-break-inside:avoid;}
+    input,textarea{border:1px solid #999 !important;}
+    textarea{overflow:visible;}
+    @page{margin:14mm 10mm;}
+  }
+</style>
+</head>
+<body>
+
+<div class="barre">
+  <h1>📋 PEI — Projet Éducatif Individualisé</h1>
+  <span class="etat-save" id="etatSave"></span>
+  <button onclick="window.print()">🖨️ Exporter en PDF</button>
+  <button class="sec" onclick="reinitialiser()">🗑️ Nouveau (vider)</button>
+</div>
+
+<div class="feuille">
+
+  <div class="titre-doc">
+    <h1>Projet Éducatif Individualisé</h1>
+    <p>Document de guidance — Service de placement familial</p>
+  </div>
+
+  <!-- ============ IDENTIFICATION ============ -->
+  <h2 class="section">Identification</h2>
+  <div class="bloc">
+    <div class="grille2">
+      <label class="champ"><span>Nom de l'enfant</span><input type="text" data-k="nom_enfant"></label>
+      <label class="champ"><span>Date de guidance</span><input type="date" data-k="date_guidance"></label>
+      <label class="champ"><span>Date de naissance</span><input type="date" data-k="date_naissance"></label>
+      <label class="champ"><span>Date de la dernière formalisation</span><input type="date" data-k="date_formalisation"></label>
+    </div>
+    <label class="champ"><span>Raisons du placement</span><textarea data-k="raisons_placement"></textarea></label>
+  </div>
+
+  <!-- ============ MANDAT ============ -->
+  <h2 class="section">Mandat</h2>
+  <div class="bloc">
+    <div class="grille3">
+      <label class="champ"><span>SPJ / SAJ / Tribunal (lieu)</span><input type="text" data-k="mandat_lieu"></label>
+      <label class="champ"><span>Directrice / conseillère (nom)</span><input type="text" data-k="mandat_directrice"></label>
+      <label class="champ"><span>Déléguée (nom)</span><input type="text" data-k="mandat_deleguee"></label>
+    </div>
+    <div class="grille2">
+      <label class="champ"><span>FA + Frais + SAAF</span><input type="text" data-k="fa_frais_saaf"></label>
+      <label class="champ"><span>Allocation forfaitaire (maman / papa / enfant)</span><input type="text" data-k="allocation_forfaitaire"></label>
+    </div>
+    <label class="champ"><span>Décisions de la dernière formalisation</span><textarea data-k="decisions_formalisation"></textarea></label>
+  </div>
+
+  <!-- ============ BESOINS DE L'ENFANT ============ -->
+  <h2 class="section">Besoins de l'enfant</h2>
+  <div class="bloc" id="bloc-besoins"></div>
+
+  <!-- ============ PERCEPTION FAMILLE D'ACCUEIL ============ -->
+  <h2 class="section">Notre perception de la famille d'accueil</h2>
+  <div class="bloc" id="bloc-fa"></div>
+
+  <!-- ============ PERCEPTION FAMILLE BIOLOGIQUE ============ -->
+  <h2 class="section">Notre perception de la famille biologique</h2>
+  <div class="bloc" id="bloc-fb"></div>
+
+  <!-- ============ PISTES DE TRAVAIL ============ -->
+  <h2 class="section">Pistes de travail</h2>
+  <div class="bloc" id="bloc-pistes"></div>
+
+  <!-- ============ EVALUATION CHARGE DE TRAVAIL ============ -->
+  <h2 class="section">Évaluation de la charge de travail</h2>
+  <div class="bloc">
+    <table>
+      <caption>Données générales</caption>
+      <thead>
+        <tr><th style="width:130px;"></th><th>Enfants</th><th>F.A.</th><th>F.O.</th><th>D.R.P.</th></tr>
+      </thead>
+      <tbody id="tab-charge"></tbody>
+    </table>
+
+    <table style="margin-top:18px;">
+      <caption>État de l'enfant — axes de travail</caption>
+      <thead>
+        <tr>
+          <th style="width:170px;">Domaine</th>
+          <th>Bilan 6 mois</th>
+          <th>Réintégration</th>
+          <th>Préparation à la majorité</th>
+        </tr>
+      </thead>
+      <tbody id="tab-etat"></tbody>
+    </table>
+
+    <table style="margin-top:18px;">
+      <caption>Activités &amp; démarches</caption>
+      <thead>
+        <tr><th style="width:230px;">Élément</th><th>Observations</th></tr>
+      </thead>
+      <tbody id="tab-activites"></tbody>
+    </table>
+    <p class="note">La ligne « TOTAUX » se calcule pour information ; adaptez librement le contenu des cellules.</p>
+  </div>
+
+  <!-- ============ DIVERS ============ -->
+  <h2 class="section">Dernière intervention psy</h2>
+  <div class="bloc">
+    <label class="champ"><textarea data-k="intervention_psy" style="min-height:60px;"></textarea></label>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var CLE="pei_form_v1";
+
+  /* ---------- Définition des champs répétitifs ---------- */
+  var besoins=[
+    "Besoins physiologiques – sommeil – alimentation – santé (suivi médical, vaccins, dentiste…)",
+    "Sécurité – protection – stabilité (repères, limites)",
+    "Affectif – relation d'attachement – appartenance",
+    "Estime de soi – épanouissement",
+    "Apprentissage – formation",
+    "Développement des compétences",
+    "Appartenance à un réseau social",
+    "Développer son autonomie – sa responsabilité"
+  ];
+  var perceptionFA=[
+    "Situation actuelle","Disponibilité","Collaboration","Ouverture à la F.O.",
+    "À l'extérieur","Éducation (souple, rigide…)","Remise en question",
+    "Relations famille élargie (fratrie, grands-parents…)","Réseau","Couple","Rôles parentaux"
+  ];
+  var perceptionFB=[
+    "Situation actuelle","Perception des parents","Collaboration","Remise en question",
+    "D.R.P.","Autre"
+  ];
+  var pistes=["Enfant","Famille d'accueil","Famille d'origine","D.R.P.","Mandat"];
+
+  var chargeLignes=["Nombre","Rythme","Fratrie","Trajets","Type"];
+  var chargeCols=["enfants","fa","fo","drp"];
+  var etatDomaines=[
+    "Scolaire","Thérapie","Santé","Développement","Administratif","Financier","Retour des parents"
+  ];
+  var etatCols=["bilan","reintegration","majorite"];
+  var activites=[
+    "Travail de l'histoire","Recherche activités","Écrits autorité / Autorité (écrits)",
+    "Besoin de sécurité","Accompagnement","Démarches","Autorité","Déplacements"
+  ];
+
+  /* ---------- Génération des lignes "libellé + texte" ---------- */
+  function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,40);}
+  function lignesTexte(conteneurId,prefixe,libelles){
+    var c=document.getElementById(conteneurId);
+    libelles.forEach(function(lib){
+      var row=document.createElement("div");row.className="ligne";
+      var l=document.createElement("div");l.className="lib";l.textContent=lib;
+      var t=document.createElement("textarea");t.setAttribute("data-k",prefixe+"_"+slug(lib));
+      row.appendChild(l);row.appendChild(t);c.appendChild(row);
+    });
+  }
+  lignesTexte("bloc-besoins","besoin",besoins);
+  lignesTexte("bloc-fa","fa",perceptionFA);
+  lignesTexte("bloc-fb","fb",perceptionFB);
+  lignesTexte("bloc-pistes","piste",pistes);
+
+  /* ---------- Tableau charge de travail ---------- */
+  (function(){
+    var tb=document.getElementById("tab-charge");
+    chargeLignes.forEach(function(lig){
+      var tr=document.createElement("tr");
+      var th=document.createElement("th");th.textContent=lig;th.style.textAlign="left";tr.appendChild(th);
+      chargeCols.forEach(function(col){
+        var td=document.createElement("td");
+        var inp=document.createElement("input");inp.type="text";
+        inp.setAttribute("data-k","charge_"+slug(lig)+"_"+col);
+        td.appendChild(inp);tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  })();
+
+  /* ---------- Tableau état de l'enfant ---------- */
+  (function(){
+    var tb=document.getElementById("tab-etat");
+    etatDomaines.forEach(function(dom){
+      var tr=document.createElement("tr");
+      var th=document.createElement("th");th.textContent=dom;th.style.textAlign="left";tr.appendChild(th);
+      etatCols.forEach(function(col){
+        var td=document.createElement("td");
+        var inp=document.createElement("input");inp.type="text";
+        inp.setAttribute("data-k","etat_"+slug(dom)+"_"+col);
+        td.appendChild(inp);tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  })();
+
+  /* ---------- Tableau activités & démarches ---------- */
+  (function(){
+    var tb=document.getElementById("tab-activites");
+    activites.forEach(function(a){
+      var tr=document.createElement("tr");
+      var th=document.createElement("th");th.textContent=a;th.style.textAlign="left";tr.appendChild(th);
+      var td=document.createElement("td");
+      var inp=document.createElement("input");inp.type="text";
+      inp.setAttribute("data-k","act_"+slug(a));
+      td.appendChild(inp);tr.appendChild(td);tb.appendChild(tr);
+    });
+    // ligne TOTAUX
+    var tr=document.createElement("tr");
+    var th=document.createElement("th");th.textContent="TOTAUX";th.style.textAlign="left";tr.appendChild(th);
+    var td=document.createElement("td");
+    var inp=document.createElement("input");inp.type="text";inp.setAttribute("data-k","act_totaux");
+    td.appendChild(inp);tr.appendChild(td);tb.appendChild(tr);
+  })();
+
+  /* ---------- Sauvegarde / restauration (localStorage) ---------- */
+  function tousChamps(){return document.querySelectorAll("[data-k]");}
+  var etat=document.getElementById("etatSave");
+  var minuteur=null;
+
+  function sauver(){
+    var data={};
+    tousChamps().forEach(function(el){if(el.value)data[el.getAttribute("data-k")]=el.value;});
+    try{localStorage.setItem(CLE,JSON.stringify(data));
+      etat.textContent="💾 Enregistré "+new Date().toLocaleTimeString();
+    }catch(e){etat.textContent="⚠ Sauvegarde impossible";}
+  }
+  function sauverDiffere(){
+    clearTimeout(minuteur);
+    etat.textContent="… modification";
+    minuteur=setTimeout(sauver,500);
+  }
+  function charger(){
+    var brut;try{brut=localStorage.getItem(CLE);}catch(e){return;}
+    if(!brut)return;
+    var data;try{data=JSON.parse(brut);}catch(e){return;}
+    tousChamps().forEach(function(el){
+      var k=el.getAttribute("data-k");
+      if(data[k]!=null)el.value=data[k];
+    });
+    etat.textContent="💾 Données restaurées";
+  }
+
+  tousChamps().forEach(function(el){el.addEventListener("input",sauverDiffere);});
+  charger();
+
+  /* ---------- Réinitialisation ---------- */
+  window.reinitialiser=function(){
+    if(!confirm("Vider le formulaire et commencer un nouveau PEI ?\n(Les données enregistrées seront effacées.)"))return;
+    tousChamps().forEach(function(el){el.value="";});
+    try{localStorage.removeItem(CLE);}catch(e){}
+    etat.textContent="Formulaire vidé";
+  };
+})();
+</script>
+</body>
+</html>
