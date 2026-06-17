@@ -111,6 +111,24 @@
 
   .note{font-size:12px;color:#6b7a83;margin:6px 0 0;}
 
+  /* groupes de cases à cocher */
+  .champ-bloc{margin:8px 0;}
+  .champ-bloc > span{display:block;font-weight:600;color:var(--bleu);margin-bottom:4px;font-size:13px;}
+  .cases{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;}
+  .cases label{display:inline-flex;align-items:center;gap:6px;font-weight:500;cursor:pointer;
+    border:1px solid var(--bord);border-radius:5px;padding:5px 10px;background:var(--gris);}
+  .cases input[type=checkbox]{width:16px;height:16px;margin:0;cursor:pointer;}
+  .cases input[type=text]{width:130px;}
+
+  /* grille d'évaluation de la charge de travail */
+  table.eval td.cat{vertical-align:top;font-size:13px;}
+  table.eval td.cat ul{margin:3px 0 0;padding-left:18px;}
+  table.eval td.cat ul li{margin:1px 0;}
+  table.eval td.pts{width:46px;text-align:center;padding:2px;}
+  table.eval td.pts input{text-align:center;font-weight:600;}
+  table.eval tr.total th,table.eval tr.total td{background:var(--bleu-clair);font-weight:700;color:var(--bleu);}
+  table.eval tr.total td{text-align:center;}
+
   /* ---------- Impression / PDF (mise en page façon document Word) ---------- */
   @media print{
     body{background:#fff;color:#000;font-size:12px;}
@@ -156,6 +174,12 @@
     caption{color:#000;font-size:13px;}
     td input{border:none !important;border-bottom:none !important;}
 
+    /* cases à cocher façon document */
+    .champ-bloc > span{color:#000;}
+    .cases label{border:none !important;background:none !important;padding:0 10px 0 0;}
+    .cases input[type=text]{border-bottom:1px dotted #999 !important;}
+    table.eval tr.total th,table.eval tr.total td{background:none !important;color:#000;}
+
     .note{color:#000;}
     @page{margin:16mm 14mm;}
   }
@@ -182,6 +206,7 @@
   <div class="bloc">
     <div class="grille2">
       <label class="champ"><span>Nom de l'enfant</span><input type="text" data-k="nom_enfant"></label>
+      <label class="champ"><span>Prénom de l'enfant</span><input type="text" data-k="prenom_enfant"></label>
       <label class="champ"><span>Date de guidance</span><input type="date" data-k="date_guidance"></label>
       <label class="champ"><span>Date de naissance</span><input type="date" data-k="date_naissance"></label>
       <label class="champ"><span>Date de la dernière formalisation</span><input type="date" data-k="date_formalisation"></label>
@@ -192,14 +217,36 @@
   <!-- ============ MANDAT ============ -->
   <h2 class="section">Mandat</h2>
   <div class="bloc">
-    <div class="grille3">
-      <label class="champ"><span>SPJ / SAJ / Tribunal (lieu)</span><input type="text" data-k="mandat_lieu"></label>
+    <div class="champ-bloc">
+      <span>Type de mandat (cocher)</span>
+      <div class="cases">
+        <label><input type="checkbox" data-k="mandat_saj"> SAJ</label>
+        <label><input type="checkbox" data-k="mandat_spj"> SPJ</label>
+        <label><input type="checkbox" data-k="mandat_tribunal"> Tribunal</label>
+        <label>Lieu : <input type="text" data-k="mandat_lieu"></label>
+      </div>
+    </div>
+    <div class="grille2">
       <label class="champ"><span>Directrice / conseillère (nom)</span><input type="text" data-k="mandat_directrice"></label>
       <label class="champ"><span>Déléguée (nom)</span><input type="text" data-k="mandat_deleguee"></label>
     </div>
     <div class="grille2">
-      <label class="champ"><span>FA + Frais + SAAF</span><input type="text" data-k="fa_frais_saaf"></label>
-      <label class="champ"><span>Allocation forfaitaire (maman / papa / enfant)</span><input type="text" data-k="allocation_forfaitaire"></label>
+      <div class="champ-bloc">
+        <span>Prise en charge (cocher)</span>
+        <div class="cases">
+          <label><input type="checkbox" data-k="pec_fa"> F.A.</label>
+          <label><input type="checkbox" data-k="pec_frais"> Frais</label>
+          <label><input type="checkbox" data-k="pec_saaf"> SAAF</label>
+        </div>
+      </div>
+      <div class="champ-bloc">
+        <span>Allocation forfaitaire allouée à (cocher)</span>
+        <div class="cases">
+          <label><input type="checkbox" data-k="alloc_maman"> Maman</label>
+          <label><input type="checkbox" data-k="alloc_papa"> Papa</label>
+          <label><input type="checkbox" data-k="alloc_enfant"> Enfant</label>
+        </div>
+      </div>
     </div>
     <label class="champ"><span>Décisions de la dernière formalisation</span><textarea data-k="decisions_formalisation"></textarea></label>
   </div>
@@ -238,35 +285,93 @@
   <!-- ============ EVALUATION CHARGE DE TRAVAIL ============ -->
   <h2 class="section">Évaluation de la charge de travail</h2>
   <div class="bloc">
-    <table>
-      <caption>Données générales</caption>
-      <thead>
-        <tr><th style="width:130px;"></th><th>Enfants</th><th>F.A.</th><th>F.O.</th><th>D.R.P.</th></tr>
-      </thead>
-      <tbody id="tab-charge"></tbody>
-    </table>
-
-    <table style="margin-top:18px;">
-      <caption>État de l'enfant — axes de travail</caption>
+    <table class="eval">
       <thead>
         <tr>
-          <th style="width:170px;">Domaine</th>
-          <th>Bilan 6 mois</th>
-          <th>Réintégration</th>
-          <th>Préparation à la majorité</th>
+          <th>Enfants</th><th class="pts">Pts</th>
+          <th>F.A.</th><th class="pts">Pts</th>
+          <th>F.O.</th><th class="pts">Pts</th>
         </tr>
       </thead>
-      <tbody id="tab-etat"></tbody>
+      <tbody>
+        <tr>
+          <td class="cat">D.R.P.
+            <ul><li>Nombre</li><li>Rythme</li><li>Fratrie</li><li>Trajets</li><li>Type</li></ul></td>
+          <td class="pts"><input type="text" class="pts-enf" data-k="pts_enf_drp"></td>
+          <td class="cat">D.R.P.</td>
+          <td class="pts"><input type="text" class="pts-fa" data-k="pts_fa_drp"></td>
+          <td class="cat">D.R.P.</td>
+          <td class="pts"><input type="text" class="pts-fo" data-k="pts_fo_drp"></td>
+        </tr>
+        <tr>
+          <td class="cat">État de l'enfant :
+            <ul><li>Scolaire</li><li>Thérapie</li><li>Santé</li><li>Développement</li></ul></td>
+          <td class="pts"><input type="text" class="pts-enf" data-k="pts_enf_etat"></td>
+          <td class="cat">Administratif<br>Financier</td>
+          <td class="pts"><input type="text" class="pts-fa" data-k="pts_fa_etat"></td>
+          <td class="cat">Retour des parents</td>
+          <td class="pts"><input type="text" class="pts-fo" data-k="pts_fo_etat"></td>
+        </tr>
+        <tr>
+          <td class="cat">Bilan 6 mois</td>
+          <td class="pts"><input type="text" class="pts-enf" data-k="pts_enf_bilan"></td>
+          <td class="cat">Bilan 6 mois</td>
+          <td class="pts"><input type="text" class="pts-fa" data-k="pts_fa_bilan"></td>
+          <td class="cat">Bilan 6 mois</td>
+          <td class="pts"><input type="text" class="pts-fo" data-k="pts_fo_bilan"></td>
+        </tr>
+        <tr>
+          <td class="cat">Réintégration</td>
+          <td class="pts"><input type="text" class="pts-enf" data-k="pts_enf_reint"></td>
+          <td class="cat">Réintégration</td>
+          <td class="pts"><input type="text" class="pts-fa" data-k="pts_fa_reint"></td>
+          <td class="cat">Réintégration</td>
+          <td class="pts"><input type="text" class="pts-fo" data-k="pts_fo_reint"></td>
+        </tr>
+        <tr>
+          <td class="cat">Préparation à la majorité</td>
+          <td class="pts"><input type="text" class="pts-enf" data-k="pts_enf_prepa"></td>
+          <td class="cat">Préparation à la majorité</td>
+          <td class="pts"><input type="text" class="pts-fa" data-k="pts_fa_prepa"></td>
+          <td class="cat">Préparation à la majorité</td>
+          <td class="pts"><input type="text" class="pts-fo" data-k="pts_fo_prepa"></td>
+        </tr>
+        <tr>
+          <td class="cat">Travail de l'histoire</td>
+          <td class="pts"><input type="text" class="pts-enf" data-k="pts_enf_hist"></td>
+          <td class="cat">Recherche activités</td>
+          <td class="pts"><input type="text" class="pts-fa" data-k="pts_fa_hist"></td>
+          <td class="cat">Écrits autorité</td>
+          <td class="pts"><input type="text" class="pts-fo" data-k="pts_fo_hist"></td>
+        </tr>
+        <tr>
+          <td class="cat">Autorité (écrits)</td>
+          <td class="pts"><input type="text" class="pts-enf" data-k="pts_enf_autorite"></td>
+          <td class="cat">Besoin de sécurité
+            <ul><li>Accompagnement</li><li>Démarches</li><li>Autorité</li></ul></td>
+          <td class="pts"><input type="text" class="pts-fa" data-k="pts_fa_securite"></td>
+          <td class="cat"></td>
+          <td class="pts"><input type="text" class="pts-fo" data-k="pts_fo_securite"></td>
+        </tr>
+        <tr>
+          <td class="cat">Déplacements</td>
+          <td class="pts"><input type="text" class="pts-enf" data-k="pts_enf_depl"></td>
+          <td class="cat"></td>
+          <td class="pts"><input type="text" class="pts-fa" data-k="pts_fa_depl"></td>
+          <td class="cat"></td>
+          <td class="pts"><input type="text" class="pts-fo" data-k="pts_fo_depl"></td>
+        </tr>
+        <tr class="total">
+          <th>TOTAUX</th>
+          <td id="tot_enf"></td>
+          <th></th>
+          <td id="tot_fa"></td>
+          <th></th>
+          <td id="tot_fo"></td>
+        </tr>
+      </tbody>
     </table>
-
-    <table style="margin-top:18px;">
-      <caption>Activités &amp; démarches</caption>
-      <thead>
-        <tr><th style="width:230px;">Élément</th><th>Observations</th></tr>
-      </thead>
-      <tbody id="tab-activites"></tbody>
-    </table>
-    <p class="note">La ligne « TOTAUX » se calcule pour information ; adaptez librement le contenu des cellules.</p>
+    <p class="note">Les colonnes « Pts » se totalisent automatiquement dans la ligne « TOTAUX ».</p>
   </div>
 
 </div>
@@ -298,17 +403,6 @@
   ];
   var pistes=["Enfant","Famille d'accueil","Famille d'origine","D.R.P.","Mandat"];
 
-  var chargeLignes=["Nombre","Rythme","Fratrie","Trajets","Type"];
-  var chargeCols=["enfants","fa","fo","drp"];
-  var etatDomaines=[
-    "Scolaire","Thérapie","Santé","Développement","Administratif","Financier","Retour des parents"
-  ];
-  var etatCols=["bilan","reintegration","majorite"];
-  var activites=[
-    "Travail de l'histoire","Recherche activités","Écrits autorité / Autorité (écrits)",
-    "Besoin de sécurité","Accompagnement","Démarches","Autorité","Déplacements"
-  ];
-
   /* ---------- Génération des lignes "libellé + texte" ---------- */
   function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,40);}
   function lignesTexte(conteneurId,prefixe,libelles,avecObjectifs){
@@ -336,66 +430,18 @@
   lignesTexte("bloc-fb","fb",perceptionFB,true);
   lignesTexte("bloc-pistes","piste",pistes,false);
 
-  /* ---------- Tableau charge de travail ---------- */
-  (function(){
-    var tb=document.getElementById("tab-charge");
-    chargeLignes.forEach(function(lig){
-      var tr=document.createElement("tr");
-      var th=document.createElement("th");th.textContent=lig;th.style.textAlign="left";tr.appendChild(th);
-      chargeCols.forEach(function(col){
-        var td=document.createElement("td");
-        var inp=document.createElement("input");inp.type="text";
-        inp.setAttribute("data-k","charge_"+slug(lig)+"_"+col);
-        td.appendChild(inp);tr.appendChild(td);
+  /* ---------- Totaux de l'évaluation de la charge de travail ---------- */
+  function calcTotaux(){
+    ["enf","fa","fo"].forEach(function(c){
+      var somme=0;
+      document.querySelectorAll(".pts-"+c).forEach(function(i){
+        var v=parseFloat((i.value||"").replace(",","."));
+        if(!isNaN(v))somme+=v;
       });
-      tb.appendChild(tr);
+      var out=document.getElementById("tot_"+c);
+      if(out)out.textContent=somme?(Math.round(somme*100)/100):"";
     });
-    // ligne "Points" : un seul point pour l'ensemble de la catégorie
-    var trp=document.createElement("tr");
-    var thp=document.createElement("th");thp.textContent="Points (catégorie)";thp.style.textAlign="left";trp.appendChild(thp);
-    chargeCols.forEach(function(col){
-      var td=document.createElement("td");
-      var inp=document.createElement("input");inp.type="text";
-      inp.setAttribute("data-k","charge_points_"+col);
-      td.appendChild(inp);trp.appendChild(td);
-    });
-    tb.appendChild(trp);
-  })();
-
-  /* ---------- Tableau état de l'enfant ---------- */
-  (function(){
-    var tb=document.getElementById("tab-etat");
-    etatDomaines.forEach(function(dom){
-      var tr=document.createElement("tr");
-      var th=document.createElement("th");th.textContent=dom;th.style.textAlign="left";tr.appendChild(th);
-      etatCols.forEach(function(col){
-        var td=document.createElement("td");
-        var inp=document.createElement("input");inp.type="text";
-        inp.setAttribute("data-k","etat_"+slug(dom)+"_"+col);
-        td.appendChild(inp);tr.appendChild(td);
-      });
-      tb.appendChild(tr);
-    });
-  })();
-
-  /* ---------- Tableau activités & démarches ---------- */
-  (function(){
-    var tb=document.getElementById("tab-activites");
-    activites.forEach(function(a){
-      var tr=document.createElement("tr");
-      var th=document.createElement("th");th.textContent=a;th.style.textAlign="left";tr.appendChild(th);
-      var td=document.createElement("td");
-      var inp=document.createElement("input");inp.type="text";
-      inp.setAttribute("data-k","act_"+slug(a));
-      td.appendChild(inp);tr.appendChild(td);tb.appendChild(tr);
-    });
-    // ligne TOTAUX
-    var tr=document.createElement("tr");
-    var th=document.createElement("th");th.textContent="TOTAUX";th.style.textAlign="left";tr.appendChild(th);
-    var td=document.createElement("td");
-    var inp=document.createElement("input");inp.type="text";inp.setAttribute("data-k","act_totaux");
-    td.appendChild(inp);tr.appendChild(td);tb.appendChild(tr);
-  })();
+  }
 
   /* ---------- Sauvegarde / restauration (localStorage) ---------- */
   function tousChamps(){return document.querySelectorAll("[data-k]");}
@@ -404,7 +450,11 @@
 
   function sauver(){
     var data={};
-    tousChamps().forEach(function(el){if(el.value)data[el.getAttribute("data-k")]=el.value;});
+    tousChamps().forEach(function(el){
+      var k=el.getAttribute("data-k");
+      if(el.type==="checkbox"){if(el.checked)data[k]=true;}
+      else if(el.value){data[k]=el.value;}
+    });
     try{localStorage.setItem(CLE,JSON.stringify(data));
       etat.textContent="💾 Enregistré "+new Date().toLocaleTimeString();
     }catch(e){etat.textContent="⚠ Sauvegarde impossible";}
@@ -420,13 +470,21 @@
     var data;try{data=JSON.parse(brut);}catch(e){return;}
     tousChamps().forEach(function(el){
       var k=el.getAttribute("data-k");
-      if(data[k]!=null)el.value=data[k];
+      if(el.type==="checkbox"){el.checked=!!data[k];}
+      else if(data[k]!=null){el.value=data[k];}
     });
     etat.textContent="💾 Données restaurées";
   }
 
-  tousChamps().forEach(function(el){el.addEventListener("input",sauverDiffere);});
+  tousChamps().forEach(function(el){
+    el.addEventListener("input",sauverDiffere);
+    el.addEventListener("change",sauverDiffere);
+  });
+  document.querySelectorAll(".pts-enf,.pts-fa,.pts-fo").forEach(function(el){
+    el.addEventListener("input",calcTotaux);
+  });
   charger();
+  calcTotaux();
 
   /* ---------- Impression : déplie les zones de texte ---------- */
   function deplierTextareas(){
@@ -447,8 +505,9 @@
   /* ---------- Réinitialisation ---------- */
   window.reinitialiser=function(){
     if(!confirm("Vider le formulaire et commencer un nouveau PEI ?\n(Les données enregistrées seront effacées.)"))return;
-    tousChamps().forEach(function(el){el.value="";});
+    tousChamps().forEach(function(el){if(el.type==="checkbox")el.checked=false;else el.value="";});
     try{localStorage.removeItem(CLE);}catch(e){}
+    calcTotaux();
     etat.textContent="Formulaire vidé";
   };
 })();
