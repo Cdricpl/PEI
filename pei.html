@@ -95,6 +95,12 @@
   .ligne textarea{min-height:40px;}
   @media(max-width:640px){.ligne{grid-template-columns:1fr;}.ligne>.lib{padding-top:0;}}
 
+  /* variante avec colonne "objectifs de travail" à droite */
+  .ligne.avec-obj{grid-template-columns:200px 1fr 1fr;}
+  .entete-obj{display:grid;grid-template-columns:200px 1fr 1fr;gap:10px;padding:0 0 4px;border-bottom:2px solid var(--bleu);margin-bottom:2px;}
+  .entete-obj > div{font-weight:600;color:var(--bleu);font-size:12px;text-transform:uppercase;letter-spacing:.3px;}
+  @media(max-width:640px){.ligne.avec-obj{grid-template-columns:1fr;}.entete-obj{display:none;}}
+
   /* tableau charge de travail */
   table{width:100%;border-collapse:collapse;margin-top:6px;}
   th,td{border:1px solid var(--bord);padding:4px 6px;text-align:left;vertical-align:top;}
@@ -174,6 +180,21 @@
   <h2 class="section">Notre perception de la famille biologique</h2>
   <div class="bloc" id="bloc-fb"></div>
 
+  <!-- ============ DERNIÈRE INTERVENTION PSY ============ -->
+  <h2 class="section">Dernière intervention psy</h2>
+  <div class="bloc">
+    <div class="entete-obj">
+      <div></div>
+      <div>Observations</div>
+      <div>Objectifs de travail (court / moyen / long terme)</div>
+    </div>
+    <div class="ligne avec-obj">
+      <div class="lib">Dernière intervention psy</div>
+      <textarea data-k="intervention_psy" style="min-height:60px;"></textarea>
+      <textarea data-k="intervention_psy_obj" style="min-height:60px;"></textarea>
+    </div>
+  </div>
+
   <!-- ============ PISTES DE TRAVAIL ============ -->
   <h2 class="section">Pistes de travail</h2>
   <div class="bloc" id="bloc-pistes"></div>
@@ -210,12 +231,6 @@
       <tbody id="tab-activites"></tbody>
     </table>
     <p class="note">La ligne « TOTAUX » se calcule pour information ; adaptez librement le contenu des cellules.</p>
-  </div>
-
-  <!-- ============ DIVERS ============ -->
-  <h2 class="section">Dernière intervention psy</h2>
-  <div class="bloc">
-    <label class="champ"><textarea data-k="intervention_psy" style="min-height:60px;"></textarea></label>
   </div>
 
 </div>
@@ -260,19 +275,30 @@
 
   /* ---------- Génération des lignes "libellé + texte" ---------- */
   function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,40);}
-  function lignesTexte(conteneurId,prefixe,libelles){
+  function lignesTexte(conteneurId,prefixe,libelles,avecObjectifs){
     var c=document.getElementById(conteneurId);
+    if(avecObjectifs){
+      var ent=document.createElement("div");ent.className="entete-obj";
+      ent.innerHTML='<div></div><div>Observations</div>'+
+        '<div>Objectifs de travail (court / moyen / long terme)</div>';
+      c.appendChild(ent);
+    }
     libelles.forEach(function(lib){
-      var row=document.createElement("div");row.className="ligne";
+      var row=document.createElement("div");row.className="ligne"+(avecObjectifs?" avec-obj":"");
       var l=document.createElement("div");l.className="lib";l.textContent=lib;
       var t=document.createElement("textarea");t.setAttribute("data-k",prefixe+"_"+slug(lib));
-      row.appendChild(l);row.appendChild(t);c.appendChild(row);
+      row.appendChild(l);row.appendChild(t);
+      if(avecObjectifs){
+        var o=document.createElement("textarea");o.setAttribute("data-k",prefixe+"_"+slug(lib)+"_obj");
+        row.appendChild(o);
+      }
+      c.appendChild(row);
     });
   }
-  lignesTexte("bloc-besoins","besoin",besoins);
-  lignesTexte("bloc-fa","fa",perceptionFA);
-  lignesTexte("bloc-fb","fb",perceptionFB);
-  lignesTexte("bloc-pistes","piste",pistes);
+  lignesTexte("bloc-besoins","besoin",besoins,true);
+  lignesTexte("bloc-fa","fa",perceptionFA,true);
+  lignesTexte("bloc-fb","fb",perceptionFB,true);
+  lignesTexte("bloc-pistes","piste",pistes,false);
 
   /* ---------- Tableau charge de travail ---------- */
   (function(){
@@ -288,6 +314,16 @@
       });
       tb.appendChild(tr);
     });
+    // ligne "Points" : un seul point pour l'ensemble de la catégorie
+    var trp=document.createElement("tr");
+    var thp=document.createElement("th");thp.textContent="Points (catégorie)";thp.style.textAlign="left";trp.appendChild(thp);
+    chargeCols.forEach(function(col){
+      var td=document.createElement("td");
+      var inp=document.createElement("input");inp.type="text";
+      inp.setAttribute("data-k","charge_points_"+col);
+      td.appendChild(inp);trp.appendChild(td);
+    });
+    tb.appendChild(trp);
   })();
 
   /* ---------- Tableau état de l'enfant ---------- */
