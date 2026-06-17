@@ -111,17 +111,53 @@
 
   .note{font-size:12px;color:#6b7a83;margin:6px 0 0;}
 
-  /* ---------- Impression / PDF ---------- */
+  /* ---------- Impression / PDF (mise en page façon document Word) ---------- */
   @media print{
-    body{background:#fff;font-size:12px;}
+    body{background:#fff;color:#000;font-size:12px;}
     .barre{display:none !important;}
-    .feuille{box-shadow:none;max-width:none;margin:0;padding:0 6mm;}
-    h2.section{-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-after:avoid;}
-    .bloc{page-break-inside:avoid;}
-    .ligne{page-break-inside:avoid;}
-    input,textarea{border:1px solid #999 !important;}
-    textarea{overflow:visible;}
-    @page{margin:14mm 10mm;}
+    .feuille{box-shadow:none;max-width:none;margin:0;padding:0;}
+
+    .titre-doc{margin:0 0 14px;}
+    .titre-doc h1{color:#000;font-size:22px;}
+    .titre-doc p{color:#000;}
+
+    /* Titres de section : pas d'encadré, simple titre souligné */
+    h2.section{
+      background:none !important;color:#000 !important;
+      font-size:14px;font-weight:700;
+      margin:16px 0 5px;padding:0 0 2px;
+      border:none;border-bottom:1px solid #000;border-radius:0;
+      page-break-after:avoid;
+    }
+    /* Suppression des encadrés (cartes) */
+    .bloc{border:none !important;border-radius:0;padding:0;}
+
+    label.champ{margin:5px 0;}
+    label.champ > span{color:#000;}
+
+    /* Champs : texte simple, sans bordure ni fond */
+    input[type=text],input[type=date],textarea{
+      border:none !important;background:none !important;
+      padding:0 2px;border-radius:0;color:#000;
+    }
+    /* léger trait sous les champs courts pour la lisibilité */
+    input[type=text],input[type=date]{border-bottom:1px dotted #999 !important;}
+    textarea{overflow:visible;resize:none;min-height:0 !important;height:auto;}
+
+    .ligne{page-break-inside:avoid;border-bottom:1px solid #e0e0e0;padding:3px 0;}
+    .ligne>.lib{color:#000;}
+    .entete-obj{border-bottom:1px solid #000;}
+    .entete-obj>div{color:#000;}
+
+    /* Tableaux : grille fine façon Word */
+    table{font-size:11px;}
+    th,td{border:1px solid #000;padding:3px 5px;}
+    th{background:none !important;color:#000;}
+    caption{color:#000;font-size:13px;}
+    td input{border:none !important;border-bottom:none !important;}
+
+    .note{color:#000;}
+    @page{margin:16mm 14mm;}
   }
 </style>
 </head>
@@ -391,6 +427,22 @@
 
   tousChamps().forEach(function(el){el.addEventListener("input",sauverDiffere);});
   charger();
+
+  /* ---------- Impression : déplie les zones de texte ---------- */
+  function deplierTextareas(){
+    document.querySelectorAll("textarea").forEach(function(t){
+      t.setAttribute("data-h-prec",t.style.height||"");
+      t.style.height="auto";
+      t.style.height=t.scrollHeight+"px";
+    });
+  }
+  function replierTextareas(){
+    document.querySelectorAll("textarea").forEach(function(t){
+      t.style.height=t.getAttribute("data-h-prec")||"";
+    });
+  }
+  window.addEventListener("beforeprint",deplierTextareas);
+  window.addEventListener("afterprint",replierTextareas);
 
   /* ---------- Réinitialisation ---------- */
   window.reinitialiser=function(){
