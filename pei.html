@@ -147,6 +147,8 @@
       border:none;border-bottom:1px solid #000;border-radius:0;
       page-break-after:avoid;
     }
+    /* Saut de page : chaque grande section commence sur une nouvelle page */
+    h2.section.page-start{break-before:page;page-break-before:always;}
     /* Suppression des encadrés (cartes) */
     .bloc{border:none !important;border-radius:0;padding:0;}
 
@@ -252,15 +254,15 @@
   </div>
 
   <!-- ============ BESOINS DE L'ENFANT ============ -->
-  <h2 class="section">Besoins de l'enfant</h2>
+  <h2 class="section page-start">Besoins de l'enfant</h2>
   <div class="bloc" id="bloc-besoins"></div>
 
   <!-- ============ PERCEPTION FAMILLE D'ACCUEIL ============ -->
-  <h2 class="section">Notre perception de la famille d'accueil</h2>
+  <h2 class="section page-start">Notre perception de la famille d'accueil</h2>
   <div class="bloc" id="bloc-fa"></div>
 
   <!-- ============ PERCEPTION FAMILLE BIOLOGIQUE ============ -->
-  <h2 class="section">Notre perception de la famille biologique</h2>
+  <h2 class="section page-start">Notre perception de la famille biologique</h2>
   <div class="bloc" id="bloc-fb"></div>
 
   <!-- ============ DERNIÈRE INTERVENTION PSY ============ -->
@@ -279,11 +281,11 @@
   </div>
 
   <!-- ============ PISTES DE TRAVAIL ============ -->
-  <h2 class="section">Pistes de travail</h2>
+  <h2 class="section page-start">Pistes de travail</h2>
   <div class="bloc" id="bloc-pistes"></div>
 
   <!-- ============ EVALUATION CHARGE DE TRAVAIL ============ -->
-  <h2 class="section">Évaluation de la charge de travail</h2>
+  <h2 class="section page-start">Évaluation de la charge de travail</h2>
   <div class="bloc">
     <table class="eval">
       <thead>
